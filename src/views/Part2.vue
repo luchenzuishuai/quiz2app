@@ -11,6 +11,7 @@ lab: Assignment3 */
       <div style="display: flex; flex-direction: column">
         <span class="ques">✅ Ques2: For the data set p, please show a point chart (scatter chart, x/y chart) that occupies about half (50%) of the screen width and height with labels on each axis, where each point has the color "r" (red) or "g" (green).</span>
         <span class="tip">Additional-1：Allow a user to add additional points or change the x,y, or color attribute of an existing point. </span>
+        <span class="tip">Tip： Click the point to change the color</span>
       </div>
     </div>
     <el-divider></el-divider>
