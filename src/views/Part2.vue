@@ -55,7 +55,6 @@ export default {
       this.loading = false
     },
     drawXYScatter () {
-      console.log(1)
       const mychart = echarts.init(this.$refs.graph)
       const option = {
         title: {
@@ -95,10 +94,49 @@ export default {
         ]
       }
       mychart.setOption(option)
+      const that = this
+      mychart.on('click', function (params) {
+        console.log(params)
+        that.editColor(params.data) // [4, 4, 'g']
+      })
       this.$message.success('Loading succeeded~')
     },
+    async editColor (data) {
+      let obj = {}
+      if (!this.type) {
+        // xy
+        obj = {
+          modifiedPoint: {
+            color: data[2] === 'r' ? 'g' : 'r',
+            x: data[0],
+            y: data[1]
+          },
+          originalPoint: {
+            color: data[2],
+            x: data[0],
+            y: data[1]
+          }
+        }
+      } else {
+        // yx
+        obj = {
+          modifiedPoint: {
+            color: data[2] === 'r' ? 'g' : 'r',
+            x: data[1],
+            y: data[0]
+          },
+          originalPoint: {
+            color: data[2],
+            x: data[1],
+            y: data[0]
+          }
+        }
+      }
+      await this.$http.post('/quiz2/modifyPoint', obj)
+      await this.getDataList()
+      this.type ? this.drawYXScatter() : this.drawXYScatter()
+    },
     drawYXScatter () {
-      console.log(2)
       const mychart = echarts.init(this.$refs.graph)
       const option = {
         title: {
@@ -134,7 +172,7 @@ export default {
           }
         ]
       }
-      mychart.setOption(option, true)
+      mychart.setOption(option)
       this.$message.success('Loading succeeded~')
     },
     change () {

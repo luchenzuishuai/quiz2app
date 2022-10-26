@@ -88,12 +88,12 @@ export default {
       const mychart = echarts.init(this.$refs.graph)
       const option = {
         title: {
-          text: 'Quantitative Distribution Graph',
+          text: 'Distribution of food quantity in stores Graph',
           subtext: 'Tip: Place the mouse on the graph to display the quantity',
           left: 'center'
         },
         tooltip: {
-          trigger: 'item'
+          position: 'top'
         },
         legend: {
           orient: 'vertical',
