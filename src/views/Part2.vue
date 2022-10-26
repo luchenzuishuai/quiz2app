@@ -68,6 +68,9 @@ export default {
         yAxis: {
           name: 'y'
         },
+        tooltip: {
+          trigger: 'item'
+        },
         series: [
           {
             symbolSize: 20,
