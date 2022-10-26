@@ -9,11 +9,14 @@ lab: Assignment3 */
     <div class='ques1'>
       <!--  search for magnitude greater than 5.0 -->
       <div style="display: flex; flex-direction: column">
-        <span class="ques">✅ Ques2: What would a graph of magnitude against depth for the 100 recent quakes look like?</span>
-        <span class="tip">Additional-1：point chart or scatter chart. </span>
+        <span class="ques">✅ Ques2: For the data set p, please show a point chart (scatter chart, x/y chart) that occupies about half (50%) of the screen width and height with labels on each axis, where each point has the color "r" (red) or "g" (green).</span>
+        <span class="tip">Additional-1：Allow a user to add additional points or change the x,y, or color attribute of an existing point. </span>
       </div>
     </div>
     <el-divider></el-divider>
+    <el-row type="flex" justify="end">
+      <el-switch v-model="type" active-text="style2" inactive-text="style1" @change="change"></el-switch>
+    </el-row>
     <div v-loading="loading" ref="graph" key="1" class="graph"></div>
   </div>
 </template>
@@ -30,52 +33,109 @@ export default {
   async mounted () {
     await this.getDataList()
     // 元素挂载与渲染到dom树上完毕。页面渲染完毕时，去获取实例；created阶段只是实例创建完毕，页面并没有渲染完毕
-    this.drawScatter()
+    this.drawXYScatter()
   },
   data () {
     return {
-      dataList: [],
-      loading: false
+      data1List: [],
+      data2List: [],
+      loading: false,
+      type: false
     }
   },
   methods: {
     async getDataList () {
       this.loading = true
-      const { data } = await this.$http.get('/quakes/fetchRecentQuake', {
-        params: {
-          number: 100
-        }
-      })
-      this.dataList = data.map(item => [item.mag, item.depth])
-      // console.log(this.dataList)
+      const { data } = await this.$http.get('/quiz2/fetchAllPoint')
+      // console.log(data)
+      this.data1List = data.map(item => [item.x, item.y, item.color])
+      this.data2List = data.map(item => [item.y, item.x, item.color])
+      // this.dataList = data.map(item => [item.x, item.y])
+      console.log(this.data1List)
       this.loading = false
     },
-    drawScatter () {
+    drawXYScatter () {
+      console.log(1)
       const mychart = echarts.init(this.$refs.graph)
       const option = {
         title: {
-          text: 'Magnitude-Depth Distribution Map',
+          text: 'Scatter Map',
           left: 'center'
         },
         xAxis: {
-          name: 'magnitude'
+          name: 'x'
         },
         yAxis: {
-          name: 'depth'
+          name: 'y'
         },
         series: [
           {
-            symbolSize: 5,
+            symbolSize: 20,
             // data: [
             //   [10.0, 8.04],
             // ],
-            data: this.dataList,
+            data: this.data1List,
+            itemStyle: {
+              normal: {
+                color: function (param) {
+                  if (param.data[2] === 'r') {
+                    return 'red'
+                  }
+                  if (param.data[2] === 'g') {
+                    return 'green'
+                  }
+                }
+              }
+            },
             type: 'scatter'
           }
         ]
       }
       mychart.setOption(option)
       this.$message.success('Loading succeeded~')
+    },
+    drawYXScatter () {
+      console.log(2)
+      const mychart = echarts.init(this.$refs.graph)
+      const option = {
+        title: {
+          text: 'Scatter Map',
+          left: 'center'
+        },
+        xAxis: {
+          name: 'y'
+        },
+        yAxis: {
+          name: 'x'
+        },
+        series: [
+          {
+            symbolSize: 20,
+            // data: [
+            //   [10.0, 8.04],
+            // ],
+            data: this.data2List,
+            itemStyle: {
+              normal: {
+                color: function (param) {
+                  if (param.data[2] === 'r') {
+                    return 'red'
+                  }
+                  if (param.data[2] === 'g') {
+                    return 'green'
+                  }
+                }
+              }
+            },
+            type: 'scatter'
+          }
+        ]
+      }
+      mychart.setOption(option, true)
+      this.$message.success('Loading succeeded~')
+    },
+    change () {
+      this.type ? this.drawYXScatter() : this.drawXYScatter()
     }
   }
 }

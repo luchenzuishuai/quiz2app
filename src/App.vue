@@ -14,8 +14,9 @@ lab: Assignment3
     <!-- body -->
     <div id="app">
       <div id="nav">
-        <router-link to="/">Part1</router-link> |
-        <router-link to="/part2">Part2</router-link>
+        <router-link to="/">Part10</router-link> |
+        <router-link to="/part2">Part11</router-link> |
+        <router-link to="/part3">Part12</router-link>
       </div>
       <router-view />
     </div>

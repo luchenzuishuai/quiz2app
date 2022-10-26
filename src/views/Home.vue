@@ -8,15 +8,17 @@ lab: Assignment3 */
     <div class='ques1'>
       <!--  search for magnitude greater than 5.0 -->
       <div style="display: flex; flex-direction: column">
-        <span class="ques">✅ Ques1: Show the number of quakes for magnitude below 1, 1 to 2, 2 to 3, up to magnitude 5.Show a Pie Chart with each pie slice in a different color, with labels (totals) outside each pie slice. </span>
-        <span class="tip">Additional-1：Perhaps a bar chart (horizontal bars or vertical bars) is easier to understand.</span>
-        <span class="tip">Additional-2：Perhaps putting the totals inside each pie slice (or bar) is better. </span>
+        <span class="ques">✅ Ques1: For the data set f a user will select a range of stores and you will display a vertical bar chart where each bar represents the the total amount of each food in all stores, </span>
+        <span class="tip">Tip-1：Default: store2-store4.You can reset </span>
       </div>
     </div>
     <el-divider></el-divider>
     <div>
-      <el-row type="flex" justify="end">
-        <el-switch v-model="type" active-text="bar chart" inactive-text="pie chart" @change="change"></el-switch>
+      <el-row type="flex" justify="end" align="middle">
+        <el-input v-model="store1" placeholder="first store" style="width: 150px"></el-input>
+        <el-input v-model="store2" placeholder="second store" style="width: 150px"></el-input>
+        <el-button type="primary" icon="el-icon-search" @click="clickFn">Get Data</el-button>
+        <el-switch v-model="type" active-text="show b" inactive-text="show a" @change="change"></el-switch>
       </el-row>
     </div>
     <!-- graph area -->
@@ -52,85 +54,62 @@ export default {
     // 解决方法：在mounted中去拿数据，等数据获取完了，才去渲染
     await this.getDataList()
     // 元素挂载与渲染到dom树上完毕。页面渲染完毕时，去获取实例；created阶段只是实例创建完毕，页面并没有渲染完毕
-    this.drawPie()
+    this.drawVerticalBar()
   },
   data () {
     return {
       dataList: [],
-      ques1Number: '',
-      ques2Number: '',
-      ques2Location: '',
+      data2List: [],
       loading: false,
-      type: false
+      type: false,
+      store1: 2,
+      store2: 4
     }
   },
   methods: {
+    async clickFn () {
+      await this.getDataList()
+      this.type ? this.draHorizontalBar() : this.drawVerticalBar()
+    },
     async getDataList () {
       this.loading = true
       // get quake data[0-1]、[1-2]、[2-3]、[3-4]、[4-5]
-      for (let i = 0; i < 5; i++) {
-        const { data } = await this.$http.get('/quakes/quakeCount', {
-          params: {
-            lowMag: i,
-            highMag: i + 1
-          }
-        })
-        this.dataList.push({
-          value: data,
-          name: i + '~' + (i + 1)
-        })
-      }
-      // console.log(this.dataList)
+      const { data: data1 } = await this.$http.get('/quiz2/fetchQ10a', {
+        params: {
+          store1: this.store1,
+          store2: this.store2
+        }
+      })
+      this.dataList = data1
+      const { data: data2 } = await this.$http.get('quiz2/fetchQ10b', {
+        params: {
+          store1: this.store1,
+          store2: this.store2
+        }
+      })
+      this.data2List = data2
+      console.log(this.data2List)
       this.loading = false
     },
-    drawPie () {
-      const mychart = echarts.init(this.$refs.graph)
-      const option = {
-        title: {
-          text: 'Quantitative distribution of earthquake magnitude',
-          subtext: 'magnitude: 0-5(Place the mouse on the graph to display the quantity)',
-          left: 'center'
-        },
-        tooltip: {
-          trigger: 'item'
-        },
-        legend: {
-          orient: 'vertical',
-          left: '20%'
-        },
-        series: [
-          {
-            name: 'Access From',
-            type: 'pie',
-            radius: '60%',
-            // data: [
-            //   { value: 1048, name: 'Search Engine' },
-            // ],
-            data: this.dataList,
-            emphasis: {
-              itemStyle: {
-                shadowBlur: 10,
-                shadowOffsetX: 0,
-                shadowColor: 'rgba(0, 0, 0, 0.5)'
-              }
-            }
-          }
-        ]
-      }
-      mychart.setOption(option)
-      this.$message.success('Loading succeeded~')
-    },
-    drawBar () {
+    drawVerticalBar () {
       const mychart = echarts.init(this.$refs.graph)
       // data-y
-      const dataY = this.dataList.map(item => item.value)
-      console.log(dataY)
+      const dataY = this.dataList.map(item => item.num)
+      const dataX = this.dataList.map(item => item.food)
       const option = {
         xAxis: {
+          name: 'food',
           type: 'category',
-          data: ['0~1', '1~2', '2~3', '3~4', '4~5']
+          data: dataX
+        },
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {
+            type: 'shadow'
+          }
         },
         yAxis: {
+          name: 'number',
           type: 'value'
         },
         series: [
@@ -148,7 +127,44 @@ export default {
       this.$message.success('Loading succeeded~')
     },
     change (val) {
-      val ? this.drawBar() : this.drawPie()
+      val ? this.draHorizontalBar() : this.drawVerticalBar()
+    },
+    draHorizontalBar () {
+      const mychart = echarts.init(this.$refs.graph)
+      // data-y
+      const dataX = this.data2List.map(item => item.num)
+      const dataY = this.data2List.map(item => item.store)
+      console.log(dataY)
+      const option = {
+        xAxis: {
+          name: 'number',
+          type: 'value'
+        },
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {
+            type: 'shadow'
+          }
+        },
+        yAxis: {
+          name: 'store',
+          type: 'category',
+          data: dataY
+
+        },
+        series: [
+          {
+            data: dataX,
+            type: 'bar',
+            showBackground: true,
+            backgroundStyle: {
+              color: 'rgba(180, 180, 180, 0.2)'
+            }
+          }
+        ]
+      }
+      mychart.setOption(option)
+      this.$message.success('Loading succeeded~')
     }
   }
 }
@@ -171,7 +187,7 @@ export default {
 .ques {
   color: red;
   font-weight: 700;
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .tip {
@@ -182,5 +198,4 @@ export default {
 .graph {
   height: 600px;
 }
-
 </style>
