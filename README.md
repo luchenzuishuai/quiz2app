@@ -2,7 +2,7 @@
 
 ## Project setup
 ```
-npm install test
+npm install test test2
 ```
 
 ### Compiles and hot-reloads for development
